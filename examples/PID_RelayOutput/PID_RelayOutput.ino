@@ -55,7 +55,7 @@ void loop()
   { //time to shift the Relay Window
     windowStartTime += WindowSize;
   }
-  if (Output < millis() - windowStartTime) digitalWrite(RELAY_PIN, HIGH);
+  if (Output > millis() - windowStartTime) digitalWrite(RELAY_PIN, HIGH);
   else digitalWrite(RELAY_PIN, LOW);
 
 }
