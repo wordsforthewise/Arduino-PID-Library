@@ -2,16 +2,17 @@
  * PID RelayOutput Example
  * Same as basic example, except that this time, the output
  * is going to a digital pin which (we presume) is controlling
- * a relay.  the pid is designed to Output an analog value,
- * but the relay can only be On/Off.
+ * a relay, let's say in this case for powering a heater to 
+ * control temperature.  The PID is designed to Output an analog 
+ * value, but the relay can only be On/Off.
  *
- *   to connect them together we use "time proportioning
- * control"  it's essentially a really slow version of PWM.
- * first we decide on a window size (5000mS say.) we then
- * set the pid to adjust its output between 0 and that window
- * size.  lastly, we add some logic that translates the PID
+ *   To connect them together we use "time proportioning
+ * control" -- it's essentially a really slow version of PWM.
+ * first we decide on a window size (i.e. 5000mS). We then
+ * set the PID to adjust its output between 0 and that window
+ * size.  Lastly, we add some logic that translates the PID
  * output into "Relay On Time" with the remainder of the
- * window being "Relay Off Time"
+ * window being "Relay Off Time".
  ********************************************************/
 
 #include <PID_v1.h>
@@ -26,7 +27,7 @@ double Setpoint, Input, Output;
 double Kp=2, Ki=5, Kd=1;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
-int WindowSize = 5000;
+int WindowSize = 5000; // in milliseconds
 unsigned long windowStartTime;
 
 void setup()
@@ -51,13 +52,13 @@ void loop()
   /************************************************
    * turn the output pin on/off based on pid output
    ************************************************/
-  if (millis() - windowStartTime > WindowSize)
-  { //time to shift the Relay Window
-    windowStartTime += WindowSize;
-  }
+  
+  // ensure our window doesn't exceed the WindowSize
+  if (millis() - windowStartTime > WindowSize) windowStartTime += WindowSize;
+  
+  // The error value (Output) will be positive if we are below the setpoint
   if (Output > millis() - windowStartTime) digitalWrite(RELAY_PIN, HIGH);
   else digitalWrite(RELAY_PIN, LOW);
-
 }
 
 
